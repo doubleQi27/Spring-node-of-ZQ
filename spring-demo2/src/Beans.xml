@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--导入 p命名空间约束：在 beans 标签中配置 xmlns:p="http://www.springframework.org/schema/p" 约束
+    p = property，是 setter 注入方式的快捷写法，
+    使用 p命名空间 可直接以 bean 属性的形式进行注入，无需再以 property 子标签的形式注入
+-->
+<!--导入  c命名空间约束：在 beans 标签中配置 xmlns:c="http://www.springframework.org/schema/c" 约束
+    c constructor-arg，是构造注入方式的快捷写法，
+    使用 c命名空间，可直接以 bean 属性的形式进行注入，无需再以 constructor-arg 子标签的形式注入
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:c="http://www.springframework.org/schema/c">
+
+    <!--构造注入-->
+    <bean id="student" class="net.biancheng.c.Student">
+        <constructor-arg name="id" value="2"></constructor-arg>
+        <constructor-arg name="name" value="zhaoqi"></constructor-arg>
+        <constructor-arg name="grade" ref="grade"></constructor-arg>
+    </bean>
+    <bean id="grade" class="net.biancheng.c.Grade">
+        <constructor-arg name="gradeId" value="4"></constructor-arg>
+        <constructor-arg name="gradeName" value="四年级"></constructor-arg>
+    </bean>
+
+    <!--setter注入方式：必须提供各属性的 getter 和 setter 方法，否则无法注入（set方法必须要有）-->
+    <bean id="car" class="net.biancheng.c.Car">
+        <property name="brand" value="大众"/>
+        <property name="price" value="150000"/>
+        <property name="maxSpeed" value="200"/>
+    </bean>
+    <bean id="teacher" class="net.biancheng.c.Teacher">
+        <property name="name" value="prof.D"/>
+        <property name="kemu" value="工业工程"/>
+        <property name="car" ref="car"/>
+    </bean>
+
+    <!--p命名空间 注入方式-->
+    <bean id="dept" class="net.biancheng.c.Dept" p:deptName="数字交易产品部" p:deptNo="00001"/>
+    <bean id="employee" class="net.biancheng.c.Employee" p:empName="张三" p:empNo="100191" p:dept-ref="dept"/>
+
+    <!--c命名空间 注入方式-->
+    <bean id="subDept" class="net.biancheng.c.SubDept" c:subDeptName="产品一部" c:subDeptID="01021"/>
+    <bean id="tempEmployee" class="net.biancheng.c.TempEmployee" c:TMName="李四" c:TMID="T001" c:TMDept-ref="subDept"/>
+
+    <!--setter 方式注入内部bean，此时内部bean是匿名的，即不需要告知 spring 内部 bean 的 id 和 name,class仍然需要-->
+    <bean id="employee2" class="net.biancheng.c.Employee2">
+        <property name="empName" value="王五"/>
+        <property name="empNo" value="021452"/>
+        <!--setter 注入内部 bean + p命名空间写法-->
+        <property name="dept">
+            <!--一定要写对内部类的class了，内部类的映射一定要正确-->
+            <bean class="net.biancheng.c.Dept2" p:deptName="产品三部" p:deptNo="003"/>
+        </property>
+    </bean>
+
+    <!--构造方式注入内部bean，此时内部bean是匿名的，即不需要告知 spring 内部 bean 的 id 和 name,class仍然需要-->
+    <bean id="employee3" class="net.biancheng.c.Employee3">
+        <constructor-arg name="emplName" value="陈六"></constructor-arg>
+        <constructor-arg name="emplID" value="01258"></constructor-arg>
+        <constructor-arg name="dept3">
+        <bean class="net.biancheng.c.Dept3">
+            <constructor-arg name="deptName" value="产品四部"></constructor-arg>
+            <constructor-arg name="deptID" value="T008"></constructor-arg>
+        </bean>
+        </constructor-arg>
+    </bean>
+
+    <!--spring 注入集合（setter 方式）-->
+    <bean id="javaCollection" class="net.biancheng.collection.JavaCollection">
+        <!--setter注入-->
+        <property name="courses">
+            <!--普通数组注入，可以指明数据类型-->
+            <array value-type="java.lang.String">
+                <value>JAVA</value>
+                <value>Python</value>
+                <value>C++</value>
+                <value>C#</value>
+            </array>
+        </property>
+        <!--setter注入-->
+        <property name="list">
+            <list>
+                <value>C++</value>
+                <value>C#</value>
+                <value>JAVA</value>
+                <value>Python</value>
+                <!--list 中允许重复值-->
+                <value>JAVA</value>
+            </list>
+        </property>
+        <!--setter注入-->
+        <property name="sets">
+            <set>
+                <value>JAVA</value>
+                <value>C++</value>
+                <!--set 中不允许重复值，这里写了也没用-->
+                <value>JAVA</value>
+            </set>
+        </property>
+        <!--setter注入-->
+        <property name="maps">
+            <map>
+                <entry key="JAVA" value="java"></entry>
+                <entry key="PHP" value="php"></entry>
+                <!--map 中 key 不允许重复，value 允许重复，key 重复的不会出现-->
+                <entry key="JAVA" value="qwer"></entry>
+                <entry key="qwer" value="php"></entry>
+            </map>
+        </property>
+    </bean>
+
+    <!--spring 注入集合（构造注入方式）-->
+    <bean id="javaCollection2" class="net.biancheng.collection.JavaCollection2">
+        <!--构造注入-->
+        <constructor-arg name="courses">
+            <array>
+                <bean class="net.biancheng.collection.Course">
+                    <property name="courseName" value="语文"/>
+                    <property name="courseId" value="1111"/>
+                </bean>
+                <bean class="net.biancheng.collection.Course">
+                    <property name="courseName" value="数学"/>
+                    <property name="courseId" value="2222"/>
+                </bean>
+                <bean class="net.biancheng.collection.Course">
+                    <property name="courseName" value="英语"/>
+                    <property name="courseId" value="3333"/>
+                </bean>
+            </array>
+        </constructor-arg>
+        <!--构造注入-->
+        <constructor-arg name="list">
+            <list>
+                <value>C++</value>
+                <value>C#</value>
+                <value>JAVA</value>
+                <value>Python</value>
+                <!--list 中允许重复值-->
+                <value>JAVA</value>
+            </list>
+        </constructor-arg>
+        <!--构造注入-->
+        <constructor-arg name="sets">
+            <set>
+                <value>JAVA</value>
+                <value>C++</value>
+                <!--set 中不允许重复值，这里写了也没用-->
+                <value>JAVA</value>
+            </set>
+        </constructor-arg>
+        <!--构造注入-->
+        <constructor-arg name="maps">
+            <map>
+                <entry key="JAVA" value="java"></entry>
+                <entry key="PHP" value="php"></entry>
+                <!--map 中 key 不允许重复，value 允许重复，key 重复的不会出现-->
+                <entry key="JAVA" value="qwer"></entry>
+                <entry key="qwer" value="php"></entry>
+            </map>
+        </constructor-arg>
+    </bean>
+</beans>

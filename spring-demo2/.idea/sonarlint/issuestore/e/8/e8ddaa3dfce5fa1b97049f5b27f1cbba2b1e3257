@@ -1,0 +1,17 @@
+
+V
+java:S1854"@Remove this useless assignment to local variable "tempEmployee".(Á¾°Ã
+W
+java:S1854"<Remove this useless assignment to local variable "employee".(àà£¯ýÿÿÿÿ
+V
+java:S1854";Remove this useless assignment to local variable "teacher".( ìðþÿÿÿÿ
+V	java:S125"<This block of commented-out lines of code should be removed.(¾Šýÿÿÿÿ
+G
+java:S1481",Remove this unused "teacher" local variable.( ìðþÿÿÿÿ
+H
+java:S1481"-Remove this unused "employee" local variable.(àà£¯ýÿÿÿÿ
+G
+java:S1481"1Remove this unused "tempEmployee" local variable.(Á¾°Ã
+P	java:S125"<This block of commented-out lines of code should be removed.(§¿
+N	java:S106""9Replace this use of System.out or System.err by a logger.(Å¾¥
+U	java:S106#"9Replace this use of System.out or System.err by a logger.(ö¬Óá8óùœ­0

@@ -1,0 +1,11 @@
+
+E
+java:S3416"*Update this logger to use "MainAPP.class".(Ãþîüúÿÿÿÿ
+Q
+java:S1854"6Remove this useless assignment to local variable "jc".(ð‰Ÿ”øÿÿÿÿ
+B
+java:S1481"'Remove this unused "jc" local variable.(ð‰Ÿ”øÿÿÿÿ
+Q	java:S125"<This block of commented-out lines of code should be removed.(Ýâø½
+S	java:S106"9Replace this use of System.out or System.err by a logger.(˜žœÞøÿÿÿÿ
+E
+java:S1068"*Remove this unused "LOGGER" private field.(Ãþîüúÿÿÿÿ
