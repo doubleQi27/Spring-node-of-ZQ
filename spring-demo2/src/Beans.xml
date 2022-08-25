@@ -161,4 +161,43 @@
             </map>
         </constructor-arg>
     </bean>
+
+    <!--bean 注入其他类型值-->
+    <bean id="specialValue" class="net.biancheng.other.SpecialValue">
+        <!--注入空值-->
+        <property name="propertyNull">
+            <!--注入空值使用的是 null标签-->
+            <null/>
+        </property>
+        <!--注入空白字符串-->
+        <property name="propertyEmpty" value=""/>
+        <!--注入特殊字符，需要转义-->
+        <!--字符对照表（注意，必须要有分号）：
+          &：&amp;
+          <：&lt;
+          >：&gt;
+          :：&quot;
+          '：apos;
+          实际上，用短字符串格式： <![CDATA[]]>，xml会忽略对短字符串中字符的解析
+          使用格式：<![CDATA[带有特殊字符的字符串]]>-->
+        <property name="propertySpecial1" value="&amp;"/>
+        <property name="propertySpecial2" value="&lt;"/>
+        <property name="propertySpecial3">
+            <!--使用短字符串格式： <![CDATA[]]>，value以标签的形式出现，值用“<>”括起-->
+            <value><![CDATA[<欢迎来到：C语言中文网——"进步'神书'">]]></value>
+        </property>
+
+        <!--级联属性赋值：这里再次对被依赖的 bean 的属性进行了赋值，并且 Spring 会以这里的赋值为准-->
+        <!--注意书写格式-->
+        <property name="dependBean" ref="dependBean"></property>
+        <property name="dependBean.dependProperty" value="级联赋值演示"></property>
+
+    </bean>
+    <!--specialValue 依赖的 bean-->
+    <bean id="dependBean" class="net.biancheng.other.DependBean">
+        <!--这里先对被依赖的 bean 的属性进行了赋值-->
+        <property name="dependProperty" value="这是 Bean specialValue 依赖的 bean"/>
+    </bean>
+
+
 </beans>
