@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--导入 p命名空间约束：在 beans 标签中配置 xmlns:p="http://www.springframework.org/schema/p" 约束
+    p = property，是 setter 注入方式的快捷写法，
+    使用 p命名空间 可直接以 bean 属性的形式进行注入，无需再以 property 子标签的形式注入
+-->
+<!--导入  c命名空间约束：在 beans 标签中配置 xmlns:c="http://www.springframework.org/schema/c" 约束
+    c constructor-arg，是构造注入方式的快捷写法，
+    使用 c命名空间，可直接以 bean 属性的形式进行注入，无需再以 constructor-arg 子标签的形式注入
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:c="http://www.springframework.org/schema/c">
+
+    <!--注解扫描。通过注解实现 初始化调用 和 销毁调用-->
+    <context:component-scan base-package="net.biancheng.c"></context:component-scan>
+
+    <!-- Spring Bean 继承
+    按照继承逻辑，会先生成父类对象，即先生成父 Bean ，再生成子 Bean
+    子 Bean 中未注入的属性会继承父 Bean 中的属性注入
+    -->
+    <!--父 Bean -->
+    <bean id="animal" class="net.biancheng.c.Inherit.Animal">
+        <property name="name" value="动物"/>
+        <property name="age" value="30"/>
+    </bean>
+    <!--子 Bean。通过 parent 标签指定父类，指定同一文件中的父 Bean 的 id 即可-->
+    <bean id="dog" class="net.biancheng.c.Inherit.Dog" parent="animal">
+        <property name="name" value="小狗"/>
+        <property name="call" value="汪汪汪"/>
+    </bean>
+
+    <!--Bean 定义模板，即抽象类是如何在 Spring 中体现和应用的
+    bean 中有一个标签 abstract，若该标签的值为 true，则对应的 Bean 是抽象的
+    抽象 Bean 有以下特点：
+    1. abstract 值为 true；
+    2. 只能被子 Bean 继承，不能被实例化，也不能其他 Bean 引用
+    3. 不能在代码中根据 id getBean
+    4. 如果 Bean 中未明确指明 class 属性，则其 abstract 属性一定为 true（一定要显式指明 abstract="true"），即该 Bean 一定是抽象的-->
+    <bean id="plant" abstract="true"></bean>
+    <bean id="tree" class="net.biancheng.c.Inherit.Tree" abstract="true" parent="plant"></bean>
+    <bean id="appleTree" class="net.biancheng.c.Inherit.AppleTree" parent="tree">
+        <property name="name" value="苹果树"></property>
+        <property name="type" value="果树"></property>
+        <property name="price" value="50"></property>
+    </bean>
+</beans>

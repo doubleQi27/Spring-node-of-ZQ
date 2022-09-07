@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!--为使在 spring 中集成的 aspectJ 能用，且是在配置的 XML 中可用，必须在 beans 标签中引入
+         xmlns:aop="http://www.springframework.org/schema/aop"  约束-->
+
+    <!--定义目标 Bean-->
+    <bean id="orderDao" class="net.biancheng.c.aop.aspectJ.impl.OrderDaoImpl"></bean>
+    <!--定义切面（使用 aspectJ, 即采用静态代理的方式下，切面其实就是一个 Bean）-->
+    <bean id="myOrderAspect" class="net.biancheng.c.aop.aspectJ.MyOrderAspect"></bean>
+
+    <!--aop 配置-->
+    <aop:config>
+        <!--aop:pointcut表切点，在 aop:config 下表全局切点，哪儿都可用；在 aop:aspect 下则表示只对当前切面有效-->
+        <aop:pointcut id="beforePointCut" expression="execution(* net.biancheng.c.aop.aspectJ.IOrderDao.add(..))"/>
+        <aop:pointcut id="throwPointCut" expression="execution(* net.biancheng.c.aop.aspectJ.IOrderDao.get(..))"/>
+        <aop:pointcut id="afterReturnPointCut" expression="execution(* net.biancheng.c.aop.aspectJ.IOrderDao.modify(..))"/>
+        <aop:pointcut id="afterPointCut" expression="execution(* net.biancheng.c.aop.aspectJ.IOrderDao.*(..))"/>
+        <!--切面，aspectJ 共支持五种类型的 advice-->
+        <aop:aspect ref="myOrderAspect">
+            <!--前置增强-->
+            <aop:before method="before" pointcut-ref="beforePointCut"></aop:before>
+            <!--后置返回增强-->
+            <aop:after-returning method="afterReturning" pointcut-ref="afterReturnPointCut"
+                                 returning="returnValue"></aop:after-returning>
+            <!--异常通知-->
+            <aop:after-throwing method="afterThrow" pointcut-ref="throwPointCut"
+                                throwing="exception"></aop:after-throwing>
+            <!--最终通知-->
+            <aop:after method="after" pointcut-ref="afterPointCut"></aop:after>
+            <!--环绕通知-->
+            <aop:around method="around" pointcut-ref="beforePointCut"></aop:around>
+        </aop:aspect>
+    </aop:config>
+
+</beans>

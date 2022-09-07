@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:c="http://www.springframework.org/schema/c"
+       default-autowire="no">
+
+    <!--注解扫描，基于注解的自动装配。spring 默认不使用注解装配 Bean，需由此开启-->
+    <context:component-scan base-package="net.biancheng.c.autowired"></context:component-scan>
+
+    <!--默认不适用自动装配（autowire = "no"）
+    <bean id="dept" class="net.biancheng.c.autowired.Dept">
+        <constructor-arg name="deptName" value="产品部"></constructor-arg>
+        <constructor-arg name="deptNo" value="001"></constructor-arg>
+    </bean>
+    <bean id="employee" class="net.biancheng.c.autowired.Employee" autowire="no">
+        <property name="empNo" value="002"></property>
+        <property name="empName" value="小郭"></property>
+        <property name="dept" ref="dept"></property>
+    </bean>
+    -->
+
+    <!--byName自动装配方式（autowire = "byName"）
+    <bean id="dept" class="net.biancheng.c.autowired.Dept">
+        <property name="deptName" value="产品部"></property>
+        <property name="deptNo" value="001"></property>
+    </bean>
+    <!-根据 Bean 的 id 或 name 属性自动查找 Bean 装配到当前 Bean 的对象属性中，
+       XML 文件中 Bean 的 id 或 name 必须与类中的属性名称相同（id = "dept1" 则装配 null）。
+    <bean id="employee" class="net.biancheng.c.autowired.Employee" autowire="byName">
+        <property name="empName" value="张三"></property>
+        <property name="empNo" value="0001"></property>
+    </bean>
+    -->
+
+    <!--byType自动装配方式（autowire = "byType"）
+    <bean id="dept1" class="net.biancheng.c.autowired.Dept">
+        <constructor-arg name="deptName" value="产品部"></constructor-arg>
+        <constructor-arg name="deptNo" value="001"></constructor-arg>
+    </bean>
+    <!-根据当前 Bean 中 对象属性 的数据类型进行匹配，即使 name 或 id 与类中的属性名不同（id = "dept1" 注入正常）
+        如果存在多个相同类型的 Bean，则注入失败，抛出异常（再配置一个 dept Bean 就会如此）
+    <bean id="employee" class="net.biancheng.c.autowired.Employee" autowire="byType">
+        <property name="empName" value="李四"></property>
+        <property name="empNo" value="0002"></property>
+    </bean>
+    -->
+
+    <!--构造函数装配（autowire = "constructor"）
+    <bean id="dept" class="net.biancheng.c.autowired.Dept">
+        <property name="deptName" value="研发部"></property>
+        <property name="deptNo" value="002"></property>
+    </bean>
+    <!-根据当前 Bean 的构造函数自动装配，spring 根据 applicationContext（应用上下文）
+    自动查找为当前 Bean 构造函数参数项的 Bean，并将其装配当前 Bean 中。
+    <bean id="employee" class="net.biancheng.c.autowired.Employee" autowire="constructor">
+        <constructor-arg name="empName" value="王五"></constructor-arg>
+        <constructor-arg name="empNo" value="0002"></constructor-arg>
+    </bean>
+    -->
+
+    <!--默认装配方式（autowire = default）
+    默认采用上一级标签 <beans> 设置的自动装配规则（default-autowire）进行装配-->
+    <bean id="dept" class="net.biancheng.c.autowired.Dept">
+        <property name="deptName" value="研发部"></property>
+        <property name="deptNo" value="002"></property>
+    </bean>
+    <bean id="employee" class="net.biancheng.c.autowired.Employee" autowire="default">
+        <constructor-arg name="empName" value="赵六"></constructor-arg>
+        <constructor-arg name="empNo" value="0003"></constructor-arg>
+        <constructor-arg name="dept" ref="dept"></constructor-arg>
+    </bean>
+
+</beans>

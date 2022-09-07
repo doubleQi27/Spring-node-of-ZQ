@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--Advisor: 代表一般切面，Advice 本身就是一个切面，对目标类所有方法进行拦截(不带有切点的切面.针对所有方法进行拦截)-->
+    <!-- 定义目标（target）对象 -->
+    <bean id="userDao" class="net.biancheng.c.aop.dao.impl.UserDaoImpl"></bean>
+
+    <!-- 定义增强 -->
+    <bean id="beforeAdvice" class="net.biancheng.c.aop.advice.UserDaoBeforeAdvice"></bean>
+
+    <!--通过配置生成代理 UserDao 的代理对象 -->
+    <bean id="userDaoProxy" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <!-- 设置目标对象 -->
+        <property name="target" ref="userDao"/>
+        <!-- 设置实现的接口, value 中写接口的全路径。如果需要实现多个接口，则用<list/>-->
+        <property name="proxyInterfaces" value="net.biancheng.c.aop.dao.IUserDao"/>
+        <!-- 用于织入目标对象（目标 Bean）的增强 Bean 列表。
+        注意：
+        1. 增强 Bean 必须是实现了 MethodInterceptor 或者 Advisor 的 Bean
+        2. 增强 Bean 的配置的顺序对应调用顺序
+        3. interceptorNames 接受的是增强 Bean 的名称而非 Bean 的实例（所以不用 ref），多个可以用,分割。-->
+        <property name="interceptorNames" value="beforeAdvice"/>
+    </bean>
+
+    <!--带切点的切面-->
+    <!-- 定义目标（target）对象 -->
+    <bean id="orderDao" class="net.biancheng.c.aop.dao.impl.OrderDaoImpl"></bean>
+    <!-- 定义增强 -->
+    <bean id="aroundAdvice" class="net.biancheng.c.aop.advice.OrderDaoAroundAdvice"></bean>
+    <!--定义切面
+    两种类型的切面拦截：
+    NameMatchMethodPointcutAdvisor：指定 Advice 所要应用到的目标方法名称，例如 hello* 代表所有以 hello 开头的所有方法。
+    RegExpMethodPointcutAdvisor：使用正则表达式来定义切点（PointCut），RegExpMethodPointcutAdvisor 包含一个 pattern 属性，该属性使用正则表达式描述需要拦截的方法。-->
+    <bean id="myPointCutAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+        <!--定义切点的表达式，规定哪些方法进行拦截 .* 表示所有方法（也就是定义切点（连接点）的意思）-->
+        <!--<property name="pattern" value=".*"></property>-->
+        <property name="patterns" value="net.biancheng.c.aop.dao.impl.OrderDaoImpl.add,net.biancheng.c.aop.dao.impl.OrderDaoImpl.delete.*"></property>
+        <!--定义增强-->
+        <property name="advice" ref="aroundAdvice"></property>
+    </bean>
+    <!--Spring 通过配置生成代理-->
+    <bean id="orderDaoProxy" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <!-- 配置目标 -->
+        <property name="target" ref="orderDao"></property>
+        <!-- 针对类的代理,该属性默认取值为 false（可省略）, 表示使用 JDK 动态代理；取值为 true,表示使用 CGlib 动态代理
+        具体表现为：若实现了接口，则用动态代理；若未实现接口，则用 CGLib，采用继承的方式，生成的代理类为目标类的子类
+        （这就是为啥这里没有写 IOrderDao，然后实现它，而是直接写 OrderDao 类的原因）-->
+        <property name="proxyTargetClass" value="true"></property>
+        <!-- 在目标上应用增强 -->
+        <property name="interceptorNames" value="myPointCutAdvisor"></property>
+    </bean>
+
+    <!--Spring 自动代理：
+    1. BeanNameAutoProxyCreator：根据 Bean 名称创建代理对象
+    2. DefaultAdvisorAutoProxyCreator：根据 Advisor 本身包含信息创建代理对象
+    3. AnnotationAwareAspectJAutoProxyCreator：基于 Bean 中的 AspectJ 注解进行自动代理对象-->
+    <!--1. 根据 Bean 名称创建代理对象-->
+    <bean class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+        <!--指定要生成自动代理的 Bean 的名称，*Dao 表示名字以 Dao 结尾的 Bean -->
+        <property name="beanNames" value="userDao"></property>
+        <!-- 用于织入目标对象（目标 Bean）的增强 Bean 列表。
+        注意：
+        1. 增强 Bean 必须是实现了 MethodInterceptor 或者 Advisor 的 Bean
+        2. 增强 Bean 的配置的顺序对应调用顺序
+        3. interceptorNames 接受的是增强 Bean 的名称而非 Bean 的实例（所以不用 ref），多个可以用,分割。-->
+        <property name="interceptorNames" value="beforeAdvice,aroundAdvice"></property>
+    </bean>
+    <!--2. 根据切面中信息创建代理对象-->
+    <!--根据切面 myPointCutAdvisor 中信息创建代理对象-->
+    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"></bean>
+
+
+</beans>

@@ -1,0 +1,12 @@
+package net.biancheng.c.aop.dao;
+
+public interface IUserDao {
+
+    public void add();
+
+    public void delete();
+
+    public void modify();
+
+    public void get();
+}
