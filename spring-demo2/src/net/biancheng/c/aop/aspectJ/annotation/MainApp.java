@@ -5,8 +5,6 @@ import net.biancheng.c.aop.aspectJ.annotation.dao.config.Appconfig;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import javax.annotation.Resource;
-
 public class MainApp {
     public static void main(String[] args) {
         ApplicationContext context = new AnnotationConfigApplicationContext(Appconfig.class);

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+0. spring 事务管理方式：
+    编程式事务管理：通过编写代码实现的事务管理。
+        优点：这种方式能够在代码中精确地定义事务的边界，我们可以根据需求规定事务从哪里开始，到哪里结束。
+        缺点：硬编码，事务规则（事务管理的代码）与业务代码耦合度高，难以维护。
+    声明式事务管理：Spring 声明式事务管理在底层采用了 AOP 技术。
+        优点：无须通过编程的方式管理事务，只需要在配置文件中进行相关的规则声明，就可以将事务规则应用到业务逻辑中。
+
+2. 事务管理器—— PlatformTransactionManager（事务管理器顶层接口）
+    Spring 并不会直接管理事务，而是通过事务管理器对事务进行管理的。
+    事务管理器（接口）的三个方法：
+        TransactionStatus getTransaction(TransactionDefinition definition)：用于获取事务的状态信息
+        void commit(TransactionStatus status)：用于提交事务
+        void rollback(TransactionStatus status)：用于回滚事务
+    Spring 为不同的持久化框架或平台（例如 JDBC、Hibernate、JPA 以及 JTA 等）提供了不同的 PlatformTransactionManager 接口实现，
+    这些实现类被称为事务管理器实现（JDBC——DataSourceTransactionManager）。
+
+3. TransactionDefinition 接口
+    Spring 将 XML 配置中的事务信息封装到对象 TransactionDefinition 中，然后通过事务管理器的 getTransaction() 方法
+    获得事务的状态（TransactionStatus），并对事务进行下一步的操作。该接口包括五个方法：
+        String getName()：获取事务的名称
+        int getIsolationLevel()：获取事务的隔离级别
+        int getPropagationBehavior()：获取事务的传播行为
+        int getTimeout()：获取事务的超时时间
+        boolean isReadOnly()：获取事务是否只读
+
+    spring 事务隔离级别：
+        ISOLATION_DEFAULT：使用后端数据库默认的隔离级别
+        ISOLATION_READ_UNCOMMITTED：允许读取尚未提交的更改，可能导致脏读、幻读和不可重复读
+        ISOLATION_READ_COMMITTED：Oracle 默认级别，允许读取已提交的并发事务，防止脏读，可能出现幻读和不可重复读
+        ISOLATION_REPEATABLE_READ：MySQL 默认级别，多次读取相同字段的结果是一致的，防止脏读和不可重复读，可能出现幻读
+        ISOLATION_SERIALIZABLE：完全服从 ACID 的隔离级别，防止脏读、不可重复读和幻读
+
+    spring 事务的传播行为：
+    概念：事务传播行为（propagation behavior）指的是，当一个事务方法被另一个事务方法调用时，这个事务方法应该如何运行。
+    例如，事务方法 A 在调用事务方法 B 时，B 方法是继续在调用者 A 方法的事务中运行呢，还是为自己开启一个新事务运行，
+    这就是由事务方法 B 的事务传播行为决定的。
+        PROPAGATION_MANDATORY：支持当前事务，如果不存在当前事务，则引发异常。
+        PROPAGATION_NESTED：如果当前事务存在，则在嵌套事务中执行。
+        PROPAGATION_NEVER：不支持当前事务，如果当前事务存在，则引发异常。
+        PROPAGATION_NOT_SUPPORTED：不支持当前事务，始终以非事务方式执行。
+        PROPAGATION_REQUIRED：默认传播行为，如果存在当前事务，则当前方法就在当前事务中运行，如果不存在，则创建一个新的事务，并在这个新建的事务中运行。
+        PROPAGATION_REQUIRES_NEW：创建新事务，如果已经存在事务则暂停当前事务。
+        PROPAGATION_SUPPORTS：支持当前事务，如果不存在事务，则以非事务方式执行。
+
+4. TransactionStatus 接口
+    TransactionStatus 接口提供了一些简单的方法，来控制事务的执行、查询事务的状态。
+    该接口包含五个方法，具体如下：
+        boolean hasSavepoint()：获取是否存在保存点
+        boolean isCompleted()：获取事务是否完成
+        boolean isNewTransaction()：获取是否是新事务
+        boolean isRollbackOnly()：获取事务是否回滚
+        void setRollbackOnly()：设置事务回滚
+
+5. spring 基于 XML 实现事务管理
+    1. spring 声明式事务管理必须引入约束空间：xmlns: tx;
+    2. spring 声明式事务管理基于 AOP 进行(也就是对方法进行拦截)，必须引入 xmlns:aop 空间约束（由此可以判断事务管理是基于静态 AOP，即 AspectJ 的）。
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!--开启事务注解，必须在 XML 中添加此配置。
+    同通知（advice）配置方式，
+    transaction-manager 属性：指定事务管理器。默认取值为 transactionManager。如果自定义事务管理器 id 与其相同，则可省略；若不同，则必须指定为自定义事务管理器
+    配置完毕，开启事务注解之后，spring 会自动对容器中的 Bean 进行检查，找到使用 @Transactional 注解的 Bean，并为其提供事务支持。-->
+    <tx:annotation-driven transaction-manager="transactionManager"></tx:annotation-driven>
+    <!--开启组件扫描-->
+    <context:component-scan base-package="net.biancheng.c.transaction"></context:component-scan>
+    <!--引入 jdbc.properties 中的配置-->
+    <context:property-placeholder location="classpath:jdbc.properties"></context:property-placeholder>
+
+    <!--定义数据源 Bean-->
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <!--数据库连接地址-->
+        <property name="url" value="${jdbc.url}"/>
+        <!--数据库的用户名-->
+        <property name="username" value="${jdbc.username}"/>
+        <!--数据库的密码-->
+        <property name="password" value="${jdbc.password}"/>
+        <!--数据库驱动-->
+        <property name="driverClassName" value="${jdbc.driver}"/>
+    </bean>
+
+    <!--定义 JdbcTemplate Bean-->
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <!--将数据源的 Bean 注入到 JdbcTemplate 中-->
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+    <!--配置事务管理器。DataSourceTransactionManager 是适用于 JDBC 和 iBatis 的事务管理器实现，对于其他类型的持久化工具，spring 也提供了对应的事务管理器-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+<!--    &lt;!&ndash;基于 XML 配置的声明式事务&ndash;&gt;-->
+<!--    &lt;!&ndash;配置通知：指定事务作用的方法以及所需事物的属性。-->
+<!--    transaction-manager 属性：指定事务管理器。默认取值为 transactionManager。如果自定义事务管理器 id 与其相同，则可省略；若不同，则必须指定为自定义事务管理器&ndash;&gt;-->
+<!--    <tx:advice id="tx-advice" transaction-manager="transactionManager">-->
+<!--        &lt;!&ndash;配置事务参数，可以有多个包含多个 <tx:method>元素&ndash;&gt;-->
+<!--        <tx:attributes>-->
+<!--            &lt;!&ndash;name 指定哪些方法上添加事务。-->
+<!--            propagation	指定事务的传播行为。-->
+<!--            isolation	指定事务的隔离级别。-->
+<!--            read-only	指定是否为只读事务。-->
+<!--            timeout	表示超时时间，单位为“秒”；声明的事务在指定的超时时间后，自动回滚，避免事务长时间不提交会回滚导致的数据库资源的占用。-->
+<!--            rollback-for	指定事务对于那些类型的异常应当回滚，而不提交。-->
+<!--            no-rollback-for	指定事务对于那些异常应当继续运行，而不回滚。&ndash;&gt;-->
+<!--            <tx:method name="create*" propagation="REQUIRED" isolation="DEFAULT" read-only="false" timeout="10"/>-->
+<!--        </tx:attributes>-->
+<!--    </tx:advice>-->
+
+<!--    &lt;!&ndash;配置切点和切面&ndash;&gt;-->
+<!--    <aop:config>-->
+<!--        &lt;!&ndash;配置切点&ndash;&gt;-->
+<!--        <aop:pointcut id="tx-pt" expression="execution(* net.biancheng.c.transaction.service.impl.OrderServiceImpl.*(..))"/>-->
+<!--        &lt;!&ndash;配置切面&ndash;&gt;-->
+<!--        <aop:advisor advice-ref="tx-advice" pointcut-ref="tx-pt"></aop:advisor>-->
+<!--    </aop:config>-->
+</beans>

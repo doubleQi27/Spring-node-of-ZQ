@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd">
+    <!--开启组件扫描-->
+    <context:component-scan base-package="net.biancheng.c.jdbcTemplate"></context:component-scan>
+    <!--引入 jdbc.properties 中的配置-->
+    <context:property-placeholder location="classpath:jdbc.properties"></context:property-placeholder>
+
+    <!--定义数据源 Bean（数据库连接池对象 Bean）-->
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <!--数据库连接地址-->
+        <property name="url" value="${jdbc.url}"/>
+        <!--数据库的用户名-->
+        <property name="username" value="${jdbc.username}"/>
+        <!--数据库的密码-->
+        <property name="password" value="${jdbc.password}"/>
+        <!--数据库驱动-->
+        <property name="driverClassName" value="${jdbc.driver}"/>
+    </bean>
+
+    <!--定义JdbcTemplate Bean-->
+    <!--Spring 默认使用 DriverManagerDataSource 对数据库连接池进行管理，
+    我们可以在 Spring 的 XML 配置文件中定义 DriverManagerDataSource 的 Bean，并注入到 JdbcTempate 的 Bean 中。
+    但是这块儿没有这么写，自己知道就好-->
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <!--将数据源的 Bean 注入到 JdbcTemplate 中-->
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+</beans>
