@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--web.xml 文件的作用：配置各个 servlet，使它们能正常工作-->
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+         version="2.5">
+
+    <!-- 配置 SpringMVC 的前端控制器，对浏览器发送的请求统一进行处理 -->
+    <!--Spring MVC 初始化时，会自动从应用程序的 WEB-INF 目录下查找 Spring MVC 的配置文件。
+    该配置文件的默认命名规则为 {servlet-name}-servlet.xml，例如 springMVC-servlet.xml。-->
+    <servlet>
+        <servlet-name>springMVC</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <!--也可以将 Spring MVC 的配置文件存放在应用程序目录中的其他位置，但需要在 <servlet> 元素下
+        通过 <init-param> 元素的 contextConfigLocation 参数，来指定 Spring MVC 配置文件的位置。-->
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath:springMVC.xml</param-value>
+        </init-param>
+
+        <!--DispatcherServlet 作为框架的核心组件，在启动过程中有大量的初始化操作要做，而这些操作放在第一次请求时才执行会严重影响访问速度，
+            因此需要通过此标签将启动控制DispatcherServlet的初始化时间提前到 服务器启动时 -->
+        <!--load-on-startup 元素取值规则如下：
+            它的取值必须是一个整数；
+            当值小于 0 或者没有指定时，则表示容器在该 Servlet 被首次请求时才会被加载；
+            当值大于 0 或等于 0 时，表示容器在启动时就加载并初始化该 Servlet，取值越小，优先级越高；
+            当取值相同时，容器就会自行选择顺序进行加载。-->
+        <load-on-startup>1</load-on-startup>
+
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>dispatcherServlet</servlet-name>
+        <!--设置springMVC的核心控制器所能处理的请求的请求路径。
+        “/”所匹配的请求可以是/login或.html或.js或.css方式的请求路径，但是“/”不能匹配.jsp请求路径的请求-->
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+</web-app>
+

@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--导入 p命名空间约束：在 beans 标签中配置 xmlns:p="http://www.springframework.org/schema/p" 约束
+    p = property，是 setter 注入方式的快捷写法，
+    使用 p命名空间 可直接以 bean 属性的形式进行注入，无需再以 property 子标签的形式注入
+-->
+<!--导入  c命名空间约束：在 beans 标签中配置 xmlns:c="http://www.springframework.org/schema/c" 约束
+    c constructor-arg，是构造注入方式的快捷写法，
+    使用 c命名空间，可直接以 bean 属性的形式进行注入，无需再以 constructor-arg 子标签的形式注入
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:c="http://www.springframework.org/schema/c">
+
+    <!--注解扫描。通过注解实现 初始化调用 和 销毁调用-->
+    <context:component-scan base-package="net.biancheng.c"></context:component-scan>
+
+    <!--构造注入-->
+    <bean id="student" class="net.biancheng.c.di.usual.Student">
+        <constructor-arg name="id" value="2"></constructor-arg>
+        <constructor-arg name="name" value="zhaoqi"></constructor-arg>
+        <constructor-arg name="grade" ref="grade"></constructor-arg>
+    </bean>
+    <bean id="grade" class="net.biancheng.c.di.usual.Grade">
+        <constructor-arg name="gradeId" value="4"></constructor-arg>
+        <constructor-arg name="gradeName" value="四年级"></constructor-arg>
+    </bean>
+
+    <!--setter注入方式：必须提供各属性的 getter 和 setter 方法，否则无法注入（set方法必须要有）-->
+    <bean id="car" class="net.biancheng.c.di.usual.Car">
+        <property name="brand" value="大众"/>
+        <property name="price" value="150000"/>
+        <property name="maxSpeed" value="200"/>
+    </bean>
+    <bean id="teacher" class="net.biancheng.c.di.usual.Teacher">
+        <property name="name" value="prof.D"/>
+        <property name="kemu" value="工业工程"/>
+        <property name="car" ref="car"/>
+    </bean>
+
+    <!--p命名空间 注入方式-->
+    <bean id="dept" class="net.biancheng.c.di.usual.Dept" p:deptName="数字交易产品部" p:deptNo="00001"/>
+    <bean id="employee" class="net.biancheng.c.di.usual.Employee" p:empName="张三" p:empNo="100191" p:dept-ref="dept"/>
+
+    <!--c命名空间 注入方式-->
+    <bean id="subDept" class="net.biancheng.c.di.usual.SubDept" c:subDeptName="产品一部" c:subDeptID="01021"/>
+    <bean id="tempEmployee" class="net.biancheng.c.di.usual.TempEmployee" c:TMName="李四" c:TMID="T001" c:TMDept-ref="subDept"/>
+
+    <!--setter 方式注入内部bean，此时内部bean是匿名的，即不需要告知 spring 内部 bean 的 id 和 name,class仍然需要
+    注意：此处所说的匿名和匿名内部类不是一回事-->
+    <bean id="employee2" class="net.biancheng.c.di.usual.Employee2">
+        <property name="empName" value="王五"/>
+        <property name="empNo" value="021452"/>
+        <!--setter 注入内部 bean + p命名空间写法-->
+        <property name="dept">
+            <!--一定要写对内部类的class了，内部类的映射一定要正确-->
+            <bean class="net.biancheng.c.di.usual.Dept2" p:deptName="产品三部" p:deptNo="003"/>
+        </property>
+    </bean>
+
+    <!--构造方式注入内部bean，此时内部bean是匿名的，即不需要告知 spring 内部 bean 的 id 和 name,class仍然需要
+    注意：此处所说的匿名和匿名内部类不是一回事-->
+    <bean id="employee3" class="net.biancheng.c.di.usual.Employee3">
+        <constructor-arg name="emplName" value="陈六"></constructor-arg>
+        <constructor-arg name="emplID" value="01258"></constructor-arg>
+        <constructor-arg name="dept3">
+        <bean class="net.biancheng.c.di.usual.Dept3">
+            <constructor-arg name="deptName" value="产品四部"></constructor-arg>
+            <constructor-arg name="deptID" value="T008"></constructor-arg>
+        </bean>
+        </constructor-arg>
+    </bean>
+
+    <!--spring 注入集合（setter 方式）-->
+    <bean id="javaCollection" class="net.biancheng.c.di.collection.JavaCollection">
+        <!--setter注入-->
+        <property name="courses">
+            <!--普通数组注入，可以指明数据类型-->
+            <array value-type="java.lang.String">
+                <value>JAVA</value>
+                <value>Python</value>
+                <value>C++</value>
+                <value>C#</value>
+            </array>
+        </property>
+        <!--setter注入-->
+        <property name="list">
+            <list>
+                <value>C++</value>
+                <value>C#</value>
+                <value>JAVA</value>
+                <value>Python</value>
+                <!--list 中允许重复值-->
+                <value>JAVA</value>
+            </list>
+        </property>
+        <!--setter注入-->
+        <property name="sets">
+            <set>
+                <value>JAVA</value>
+                <value>C++</value>
+                <!--set 中不允许重复值，这里写了也没用-->
+                <value>JAVA</value>
+            </set>
+        </property>
+        <!--setter注入-->
+        <property name="maps">
+            <map>
+                <entry key="JAVA" value="java"></entry>
+                <entry key="PHP" value="php"></entry>
+                <!--map 中 key 不允许重复，value 允许重复，key 重复的不会出现-->
+                <entry key="JAVA" value="qwer"></entry>
+                <entry key="qwer" value="php"></entry>
+            </map>
+        </property>
+    </bean>
+
+    <!--spring 注入集合（构造注入方式）-->
+    <bean id="javaCollection2" class="net.biancheng.c.di.collection.JavaCollection2">
+        <!--构造注入-->
+        <constructor-arg name="courses">
+            <array>
+                <bean class="net.biancheng.c.di.collection.Course">
+                    <property name="courseName" value="语文"/>
+                    <property name="courseId" value="1111"/>
+                </bean>
+                <bean class="net.biancheng.c.di.collection.Course">
+                    <property name="courseName" value="数学"/>
+                    <property name="courseId" value="2222"/>
+                </bean>
+                <bean class="net.biancheng.c.di.collection.Course">
+                    <property name="courseName" value="英语"/>
+                    <property name="courseId" value="3333"/>
+                </bean>
+            </array>
+        </constructor-arg>
+        <!--构造注入-->
+        <constructor-arg name="list">
+            <list>
+                <value>C++</value>
+                <value>C#</value>
+                <value>JAVA</value>
+                <value>Python</value>
+                <!--list 中允许重复值-->
+                <value>JAVA</value>
+            </list>
+        </constructor-arg>
+        <!--构造注入-->
+        <constructor-arg name="sets">
+            <set>
+                <value>JAVA</value>
+                <value>C++</value>
+                <!--set 中不允许重复值，这里写了也没用-->
+                <value>JAVA</value>
+            </set>
+        </constructor-arg>
+        <!--构造注入-->
+        <constructor-arg name="maps">
+            <map>
+                <entry key="JAVA" value="java"></entry>
+                <entry key="PHP" value="php"></entry>
+                <!--map 中 key 不允许重复，value 允许重复，key 重复的不会出现-->
+                <entry key="JAVA" value="qwer"></entry>
+                <entry key="qwer" value="php"></entry>
+            </map>
+        </constructor-arg>
+    </bean>
+
+    <!--bean 注入其他类型值-->
+    <bean id="specialValue" class="net.biancheng.c.di.other.SpecialValue">
+        <!--注入空值-->
+        <property name="propertyNull">
+            <!--注入空值使用的是 null标签-->
+            <null/>
+        </property>
+        <!--注入空白字符串-->
+        <property name="propertyEmpty" value=""/>
+        <!--注入特殊字符，需要转义-->
+        <!--字符对照表（注意，必须要有分号）：
+          &：&amp;
+          <：&lt;
+          >：&gt;
+          :：&quot;
+          '：apos;
+          实际上，用短字符串格式： <![CDATA[]]>，xml会忽略对短字符串中字符的解析
+          使用格式：<![CDATA[带有特殊字符的字符串]]>-->
+        <property name="propertySpecial1" value="&amp;"/>
+        <property name="propertySpecial2" value="&lt;"/>
+        <property name="propertySpecial3">
+            <!--使用短字符串格式： <![CDATA[]]>，value以标签的形式出现，值用“<>”括起-->
+            <value><![CDATA[<欢迎来到：C语言中文网——"进步'神书'">]]></value>
+        </property>
+
+        <!--级联属性赋值：这里再次对被依赖的 bean 的属性进行了赋值，并且 Spring 会以这里的赋值为准-->
+        <!--注意书写格式-->
+        <property name="dependBean" ref="dependBean"></property>
+        <property name="dependBean.dependProperty" value="级联赋值演示"></property>
+
+    </bean>
+    <!--specialValue 依赖的 bean-->
+    <bean id="dependBean" class="net.biancheng.c.di.other.DependBean">
+        <!--这里先对被依赖的 bean 的属性进行了赋值-->
+        <property name="dependProperty" value="这是 Bean specialValue 依赖的 bean"/>
+    </bean>
+
+    <!--Spring Bean 生命周期
+    ① 作用域——对应 Bean 的 scope 标签
+    在非 web 程序情况下，Bean 的作用域有两种：
+    singleton：单例模式，IoC 只会创建一个 Bean 实例，每次调用到的都是同一个Bean，是 Spring 的默认模式
+    prototype：原型模式，表示每次通过 Spring 容器获取 Bean 时，容器都会创建一个新的 Bean 实例，效果同 new 关键字
+    -->
+    <bean id="singletonBean" class="net.biancheng.c.BeanLifecycle.SingletonBean" scope="singleton">
+        <property name="str" value="单例 Bean !"/>
+    </bean>
+    <bean id="protoTypeBean" class="net.biancheng.c.BeanLifecycle.PrototypeBean" scope="prototype">
+        <constructor-arg name="str" value="protoTypeBean"></constructor-arg>
+    </bean>
+
+    <!--通过接口实现 初始化调用 和 销毁调用-->
+    <bean id="interfaceLifeCycleBean" class="net.biancheng.c.BeanLifecycle.InterfaceLifeCycleBean">
+        <constructor-arg name="webName" value="张三"/>
+        <constructor-arg name="url" value="http://localhost:8080"/>
+    </bean>
+
+    <!--通过配置 XML 实现 初始化调用 和 销毁调用-->
+    <!--在 bean 标签中指定 init-method 和 destroy-method-->
+    <bean id="xmlLifeCycleBean" class="net.biancheng.c.BeanLifecycle.XMLLifeCycleBean" init-method="init" destroy-method="destroy">
+        <property name="webName" value="李四"></property>
+        <property name="url" value="加链接"></property>
+    </bean>
+
+    <!--BeanPostPrcessor —— 后置处理器-->
+    <bean id="helloWorld" class="net.biancheng.c.BeanLifecycle.BeanPostProcessor.HelloWorld" p:message="helloWorld 初始化"
+    init-method="init" destroy-method="destroy"/>
+    <!--注册后置处理器，多个后置处理器按照实现 Ordered 接口的返回值 从小到大 优先调用-->
+    <bean id="helloWorldInit" class="net.biancheng.c.BeanLifecycle.BeanPostProcessor.HelloWorldInit"/>
+    <bean id="helloWorldInit1" class="net.biancheng.c.BeanLifecycle.BeanPostProcessor.HelloWorldInit1"/>
+    <bean id="helloWorldInit2" class="net.biancheng.c.BeanLifecycle.BeanPostProcessor.HelloWorldInit2"/>
+
+
+</beans>
