@@ -1,4 +1,4 @@
-package net.biancheng.c.controller;
+package net.biancheng.c.base.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;

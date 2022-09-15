@@ -1,6 +1,6 @@
-package net.biancheng.c.controller;
+package net.biancheng.c.base.controller;
 
-import net.biancheng.c.entity.User;
+import net.biancheng.c.base.entity.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 

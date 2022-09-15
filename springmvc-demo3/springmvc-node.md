@@ -87,5 +87,35 @@ Spring MVC 初始化时，会自动从应用程序的 WEB-INF 目录下查找 Sp
     在 Controller 控制器方法的形参中设置一个实体类形参，如果请求参数的参数名与实体类中的属性名一致，那么 Spring MVC 会自动将请求参数封装到该实体类对象中。
     之后，通过该实体类对象即可获取所需的请求参数。
 
+# Spring MVC域对象共享数据
+域对象是什么：域对象是服务器在内存上创建的一块存储空间，主要用不同动态资源之间的数据传递和数据共享。
+
+在 Spring MVC 中，控制器在接收到 DispatcherServlet 分发过来的请求后，会继续调用 Model 层对请求进行处理。
+Model 层处理完请求后的结果被称为模型数据，会将模型数据返回给 Controller。Controller 在接收到 Model 层返回的模型数据后，
+下一步就是将模型数据通过 域对象共享 的方式传递给 View 视图进行渲染，最终返回给客户端展示。
+
+域对象的类型： request 域对象、session 域对象、application 域对象等。
+
+Spring MVC 提供了多种域对象共享数据的方式，其中最常用的方式如下：
+使用 Servlet API 向 request 域对象中共享数据
+    在控制器方法中设置一个 HttpServletRequest 类型的形参。通过它将模型数据共享到 request 域对象中。
+    
+使用 ModelAndView 向 request 域对象中共享数据
+    ModelAndView 只有在作为控制器方法的返回值返回给前端控制器（DispatcherServlet）时，前端控制器解析才会去解析它。
+    
+使用 Model 向 request 域对象中共享数据
+    在 Controller 控制器方法中设置一个 Model 类型的形参。通过它向 request 域对象中共享数据。
+    
+使用 Map 向 request 域对象中共享数据
+    在 Controller 控制器方法中设置一个 Map 类型的形参。通过它向 request 域对象中共享数据。
+    
+使用 ModelMap 向 request 域对象中共享数据
+    在 Controller 控制器方法中设置一个 ModelMap 类型的形参。通过它向 request 域对象中共享数据。
+    
+使用 Servlet API 向 session 域中共享数据
+    在控制器方法中设置一个 HttpSession 类型的形参。通过它可以将数据共享到 session 域对象中。
+    
+使用 Servlet API 向 application 域中共享数据
+    在控制器方法中设置一个 HttpSession 类型的形参，通过它可获取到 application 域对象，最终可以将数据共享到 application 域对象中。
     
     
