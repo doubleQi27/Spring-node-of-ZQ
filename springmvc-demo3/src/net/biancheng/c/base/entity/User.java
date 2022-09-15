@@ -1,4 +1,4 @@
-package net.biancheng.c.entity;
+package net.biancheng.c.base.controller.entity;
 
 public class User {
 
