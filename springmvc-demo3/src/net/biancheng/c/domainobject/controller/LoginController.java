@@ -12,7 +12,7 @@ import javax.servlet.http.HttpSession;
 @Controller
 public class LoginController {
 
-    // 注解注入，不用配置 bean。byName 注入
+    // 注解注入，不用配置 bean。byType 注入
     @Autowired
     private IUserService userService;
 

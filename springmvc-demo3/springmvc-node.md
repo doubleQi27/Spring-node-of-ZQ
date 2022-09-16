@@ -80,7 +80,7 @@ Spring MVC 初始化时，会自动从应用程序的 WEB-INF 目录下查找 Sp
     @RequestParam 的四个属性：
     1. name；请求中的参数名，为 @RequestParam 注解 value 属性的别名，它与 value 属性完全等价。
     2. value：请求中的参数名，与 name 完全等价。
-    3. required：该请求参数名是否必须（对参数名的要求，不是对参数值的要求），默认值为 true，即默认情况下请求中必须包含对应的请求参数名，否则就会抛出异常。
+    3. required：该 请求参数名 是否必须（对参数名的要求，不是对参数值的要求），默认值为 true，即默认情况下请求中必须包含对应的请求参数名，否则就会抛出异常。
     4. defaultValue：请求参数的默认值。 defaultValue 属性会使 required ="true" 失效，即将 required 属性自动设置为 false。
     
 通过实体类对象获取请求参数（推荐）
@@ -118,4 +118,84 @@ Spring MVC 提供了多种域对象共享数据的方式，其中最常用的方
 使用 Servlet API 向 application 域中共享数据
     在控制器方法中设置一个 HttpSession 类型的形参，通过它可获取到 application 域对象，最终可以将数据共享到 application 域对象中。
     
+# spring MVC 视图与视图解析器
+ModelAndView = Model(模型数据)+View(视图)。
+ModelAndView 是 spring MVC 最终封装的控制器方法返回内容(ModelAndView、ModelMap、View、String等类型)的对象。
+
+View 是一个抽象概念，主要功能是用于渲染页面，将 Model(模型数据) 填入到页面中。
+View 的分类：
+    逻辑视图：控制器方法返回内容封装而成的的 ModelAndView 中的 view 可能不是一个真正的视图对象，而是一个字符串类型的逻辑视图名。
+    需要使用 视图解析器（ViewResolver） 进行解析，才能得到真正的物理视图对象。
+    eg：ThymeleafView
+    逻辑视图的返回方式：
+        1. 直接返回逻辑视图名（String 类型），后由视图解析器根据名称找到真正的视图；
+        2. 控制器方法直接返回 ModelAndView，通过 ModelAndView 的 .setViewName() 添加逻辑视图名，.addObject()方法添加 Model(模型数据)。
+    非逻辑视图：控制方法返回的是真正的视图对象，不是逻辑视图名，不需要视图解析器解析，只需直接将视图模型渲染出来即可。
+    eg：MappingJackson2JsonView
     
+视图解析器：解析逻辑视图。
+
+视图控制器：控制器方法只返回一个逻辑视图名，而没有返回任何 Model 数据，那么这个控制器方法就可以使用 View-Controller（视图控制器）标签来代替。
+eg：
+    @RequestMapping("/addPage")
+    public String addPage() {
+        return "base/add";
+    }
+可有以下替代形式：
+    <mvc:view-controller path="/addPage" view-name="base/add"></mvc:view-controller>
+    
+# 视图转发与重定向
+视图转发：无论是控制器方法以 String 类型返回 逻辑视图名 或是通过 ModelAndView 的 .setViewName() 方法设置逻辑视图名，
+只需在 逻辑视图名 前加上 "forward:" 前缀就好。
+eg: return "forward:/user"; 
+    modelAndView.setViewName("forward:/user").
+    
+视图重定向：方式同视图转发，但前缀改成 “redirect:”。
+eg：return "redirect:/user"; 
+    modelAndView.setViewName("redirect:/user").
+    
+# RESTful(REST风格)
+REST：Resource Representational State Transfer，表现层资源表述状态转移。
+几个相关概念
+    1. Resource（资源）
+    服务器上部署的工程所包含的所有内容，例如工程所包含的类文件、HTML文件、css文件、JS文件、数据表、图片等。
+    2. Representation（资源的表述）
+    资源在某个特定时刻的状态的描述，即资源的具体表现形式，它可以有多种格式，例如 HTML、XML、JSON、纯文本、图片、视频、音频等等。
+    注意：通常情况下，客户端与服务端资源的表现形式往往是不同的。
+    3. State Transfer（状态转移）
+    由于资源在客户端与服务端的表现形式不同，而 HTTP 请求为无状态请求，因此，当客户端请求服务端的资源时，需要用一定的手段使资源在
+    服务端发生“状态变化”，而这种状态转化又是建立在应用的表现层（UI）上的，因此叫做“表现层资源状态转移”。
+RESTful含义：提倡使用统一的风格来设计 URL。
+    1. URL 只用来标识和定位资源，不得包含任何与操作相关的动词。
+       eg：http://localhost:8080/biancheng/user
+    2. 当请求中需要携带参数时，RESTFul 提倡将参数通过斜杠（/）拼接到 URL 中，将其作为 URL 的一部分发送到服务器中，而不再像以前一样使用问号（?）拼接键值对的方式来携带参数。
+       eg：http://localhost:8080/biancheng/user/1 ----（1是请求参数值）
+    
+spring MVC 实现 RESTful
+通过 @RequestMapping + @PathVariable 注解的方式，来实现 RESTful 风格的请求。
+    1. 通过 @RequestMapping 注解设置 RESTful 风格路径
+       注意：“{}”为参数占位符，注意参数的位置顺序需与 URL 中参数值的位置顺序一致，否则传参错误。
+       eg：@RequestMapping("/testRest/{id}/{username}")  
+    2. 通过 @PathVariable 注解绑定参数
+       注意：在控制器方法的形参位置通过 @PathVariable 注解，将占位符 “{}” 所表示的参数赋值给指定的形参。
+       eg：@RequestMapping("/testRest/{id}/{username}")
+          public String testRest(@PathVariable("id") String id, @PathVariable("username") String username) {
+              System.out.println("id:" + id + ",username:" + username);
+              return "success";
+          }
+    3. 通过 HiddenHttpMethodFilter 对请求进行过滤
+       注意：浏览器默认只支持发送 GET 和 POST 方法的请求，为将 POST 请求转换为 PUT 或 DELETE 请求，
+            需在 web.xml 中使用 Spring MVC 提供的 HiddenHttpMethodFilter 对请求进行过滤。
+       eg：
+           <!--处理 PUT 和 DELETE 请求的过滤器-->
+           <filter>
+               <filter-name>HiddenHttpMethodFilter</filter-name>
+               <filter-class>org.springframework.web.filter.HiddenHttpMethodFilter</filter-class>
+           </filter>
+           <filter-mapping>
+               <filter-name>HiddenHttpMethodFilter</filter-name>
+               <url-pattern>/*</url-pattern>
+           </filter-mapping>
+       注意：HiddenHttpMethodFilter 处理 PUT 和 DELETE 请求时，必须满足以下 2 个条件：
+       1. 当前请求的请求方式必须为 POST；
+       2. 当前请求必须传输请求参数 _method，请求参数 _method 的值才是最终的请求方式，所以必须有。
