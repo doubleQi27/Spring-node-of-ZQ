@@ -88,7 +88,7 @@ Spring MVC 初始化时，会自动从应用程序的 WEB-INF 目录下查找 Sp
     之后，通过该实体类对象即可获取所需的请求参数。
 
 # Spring MVC域对象共享数据
-域对象是什么：域对象是服务器在内存上创建的一块存储空间，主要用不同动态资源之间的数据传递和数据共享。
+域对象是什么：域对象是服务器在内存上创建的一块存储空间，主要用于不同动态资源之间的数据传递和数据共享。
 
 在 Spring MVC 中，控制器在接收到 DispatcherServlet 分发过来的请求后，会继续调用 Model 层对请求进行处理。
 Model 层处理完请求后的结果被称为模型数据，会将模型数据返回给 Controller。Controller 在接收到 Model 层返回的模型数据后，
@@ -129,7 +129,7 @@ View 的分类：
     eg：ThymeleafView
     逻辑视图的返回方式：
         1. 直接返回逻辑视图名（String 类型），后由视图解析器根据名称找到真正的视图；
-        2. 控制器方法直接返回 ModelAndView，通过 ModelAndView 的 .setViewName() 添加逻辑视图名，.addObject()方法添加 Model(模型数据)。
+        2. 控制器方法直接返回 ModelAndView。通过 ModelAndView 的 .setViewName() 添加逻辑视图名，.addObject()方法添加 Model(模型数据)。
     非逻辑视图：控制方法返回的是真正的视图对象，不是逻辑视图名，不需要视图解析器解析，只需直接将视图模型渲染出来即可。
     eg：MappingJackson2JsonView
     
@@ -199,3 +199,47 @@ spring MVC 实现 RESTful
        注意：HiddenHttpMethodFilter 处理 PUT 和 DELETE 请求时，必须满足以下 2 个条件：
        1. 当前请求的请求方式必须为 POST；
        2. 当前请求必须传输请求参数 _method，请求参数 _method 的值才是最终的请求方式，所以必须有。
+
+# Spring MVC 拦截器
+含义：对用户请求进行拦截。在请求进入控制器（Controller）之前、控制器处理完请求后、甚至是渲染视图后，执行一些指定的操作。
+
+拦截器接口： HandlerInterceptor，包含三个接口方法：
+    1. boolean preHandle()：在控制器方法执行前执行，若返回 true，则继续向下执行；若返回 fakse，则中断后续所有操作；
+    2. void postHandle()：在控制器方法调用之后，解析式图之前执行。通过此方法可以对请求域中的模型（Model）数据和视图做出进一步的修改；
+    3. void afterCompletion()：在整个请求完成后（即视图渲染结束之后）执行。通过此方法可以实现资源清理、日志记录等工作。
+
+自定义拦截器有如下步骤：
+    1. 须实现 HandlerInterceptor 接口，重写三个方法；
+    2. 配置拦截器。
+    eg：
+    <!--配置拦截器-->
+    <mvc:interceptors>                          // 所有拦截器配置的根标签
+        <bean/>                                 // 用于定义一个全局拦截器，对所有的请求进行拦截——所有请求
+        <ref/>                                  // 用于定义一个全局拦截器的引用，对所有的请求进行拦截——与 
+                                                // Bean（<mvc:interceptors> 标签内或 <mvc:interceptors>标签外） 或 @Component 联用，不可单独使用
+        <!--拦截器 1-->
+        <mvc:interceptor>                       // 用于定义一个指定拦截路径的拦截器——指定拦截路径
+            <!--配置拦截器拦截的请求路径-->          
+            <mvc:mapping path="/**"/>           // 配置拦截器拦截的路径，拦截路径通过属性 “path” 来定义
+            <!--配置拦截器不需要拦截的请求路径-->
+            <mvc:exclude-mapping path="/login"/>    // 配置不需要被拦截器拦截的路径
+            <mvc:exclude-mapping path="/"/>
+            <!--定义在 <mvc:interceptors> 下，表示拦截器只对指定路径的请求进行拦截-->
+            <bean class="net.biancheng.c.interceptor.MyInterceptor1"></bean>       // 定义一个指定了拦截路径的拦截器——指定拦截路径
+        </mvc:interceptor>
+    </mvc:interceptors>
+    注意：配置时，子元素必须按照 <mvc:mapping> → <mvc:exclude-mapping> → <bean> 的顺序编写，否则会报错
+    3. 拦截器处理流程：
+        1. 当请求路径与拦截器拦截的路径相匹配时，程序会先执行拦截器类（MyInterceptor）的 preHandl() 方法。
+           若该方法返回值为 true，则继续向下执行 Controller（控制器）中的方法，否则将不再向下执行；
+        2. 控制器方法对请求进行处理；
+        3. 调用拦截器的 postHandl() 方法，此时可以对请求域中的模型（Model）数据和视图做出进一步的修改；
+        4. 通过 DispatcherServlet 的 render() 方法对视图进行渲染；
+        5. 调用拦截器的 afterCompletion () 方法，完成资源清理、日志记录等工作。
+    4. 多拦截器执行流程：当存在多个拦截器时，拦截器的执行顺序与其在配置文件中的配置顺序有关。
+    当存在多个拦截器同时工作时，它们的 preHandle() 方法会按照拦截器在配置文件中的配置顺序执行，
+    但它们的 PostHandle() 和 afterCompletion() 方法则会按照配置顺序的反序执行。
+    如果其中有拦截器的 preHandle() 方法返回了 false，各拦截器方法执行情况如下。
+        1. 第一个返回 preHandle() 方法 false 的拦截器以及它之前的拦截器的 preHandle() 方法都会执行。
+        2. 所有拦截器的 postHandle() 都不会执行。
+        3. 第一个返回 preHandle() 方法 false 的拦截器之前的拦截器的 afterComplation() 方法都会执行。

@@ -38,4 +38,55 @@
     <!--处理静态资源，例如html、js、css、jpg，若只设置该标签，则只能访问静态资源，其他请求则无法访问，此时必须设置<mvc:annotation-driven/>解决问题-->
     <mvc:default-servlet-handler/>
 
+    <!--配置自定义类型转换器-->
+    <!--显式地装配自定义类型转换器-->
+    <mvc:annotation-driven conversion-service="conversionService"></mvc:annotation-driven>
+    <!--自定义类型转换器配置-->
+    <bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean">
+        <property name="converters">
+            <set>
+                <bean class="net.biancheng.c.converter.util.MyDateConverter"></bean>
+            </set>
+        </property>
+    </bean>
+    <!--配置自定义类型转换器-->
+
+    <!--配置拦截器-->
+    <mvc:interceptors>
+
+        <!--拦截器 1-->
+        <mvc:interceptor>
+            <!--配置拦截器拦截的请求路径-->
+            <mvc:mapping path="/**"/>
+            <!--配置拦截器不需要拦截的请求路径-->
+            <mvc:exclude-mapping path="/login"/>
+            <mvc:exclude-mapping path="/"/>
+            <!--定义在 <mvc:interceptors> 下，表示拦截器只对指定路径的请求进行拦截-->
+            <bean class="net.biancheng.c.interceptor.MyInterceptor1"></bean>
+        </mvc:interceptor>
+
+        <!--拦截器 MyInterceptor2-->
+        <mvc:interceptor>
+            <!--配置拦截器拦截的请求路径-->
+            <mvc:mapping path="/**"/>
+            <!--配置拦截器不需要拦截的请求路径-->
+            <mvc:exclude-mapping path="/login"/>
+            <mvc:exclude-mapping path="/"/>
+            <!--定义在 <mvc:interceptors> 下，表示拦截器只对指定路径的请求进行拦截-->
+            <bean class="net.biancheng.c.interceptor.MyInterceptor2"></bean>
+        </mvc:interceptor>
+
+        <!--拦截器 MyInterceptor3-->
+        <mvc:interceptor>
+            <!--配置拦截器拦截的请求路径-->
+            <mvc:mapping path="/**"/>
+            <!--配置拦截器不需要拦截的请求路径-->
+            <mvc:exclude-mapping path="/login"/>
+            <mvc:exclude-mapping path="/"/>
+            <!--定义在 <mvc:interceptors> 下，表示拦截器只对指定路径的请求进行拦截-->
+            <bean class="net.biancheng.c.interceptor.MyInterceptor3"></bean>
+        </mvc:interceptor>
+
+    </mvc:interceptors>
+
 </beans>
