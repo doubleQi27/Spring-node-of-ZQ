@@ -199,6 +199,47 @@ spring MVC 实现 RESTful
        注意：HiddenHttpMethodFilter 处理 PUT 和 DELETE 请求时，必须满足以下 2 个条件：
        1. 当前请求的请求方式必须为 POST；
        2. 当前请求必须传输请求参数 _method，请求参数 _method 的值才是最终的请求方式，所以必须有。
+       
+#spring MVC JSON 数据交互
+1. JSON 数据格式：
+     对象数据结构：JSON 的对象结构以“{”开始，以“}”结束，中间则由 0 个或多个以英文的逗号（即“,”）分隔的 key/value 对构成。
+     eg：
+     {
+         key1:value1,
+         key2:value2,
+         ...
+     }
+     其中，key 必须为 String 类型，value 可以是 String、Number、Object、Array 等数据类型。
+    
+     数组结构：JSON 的数组结构以“[”开始、以“]”结束，中间部分由 0 个或多个以英文的逗号（即“,”）分隔的值列表组成。
+     注意：数组元素类型未限制必须为同一数据类型。
+     eg：
+     [
+         "c语言中文网",
+         123456789,
+         true,
+         null
+     ]
+    
+     对象结构与数组结构混用：
+     eg：
+     {
+         "sno":"201802228888",
+         "sname":"张三",
+         "hobby":[
+             "篮球",
+             "足球"
+         ],
+         "college":{
+             "cname":"清华大学",
+             "city":"北京",
+             "code":100000
+         }
+     }
+
+2. 相关注解：
+    @RequestBody，作用在方法的形参上，该注解用于将请求体中的数据（JSON 格式）绑定到控制器方法的形参上。
+    @ResponseBody，作用在方法上，该注解用于将控制器方法的返回值（JSON 格式），直接作为响应报文的响应体响应到浏览器上。
 
 # Spring MVC 拦截器
 含义：对用户请求进行拦截。在请求进入控制器（Controller）之前、控制器处理完请求后、甚至是渲染视图后，执行一些指定的操作。
@@ -243,3 +284,37 @@ spring MVC 实现 RESTful
         1. 第一个返回 preHandle() 方法 false 的拦截器以及它之前的拦截器的 preHandle() 方法都会执行。
         2. 所有拦截器的 postHandle() 都不会执行。
         3. 第一个返回 preHandle() 方法 false 的拦截器之前的拦截器的 afterComplation() 方法都会执行。
+
+# spring MVC 异常处理
+spring mvc 提供名为 HandlerExceptionResolver 的异常处理器接口，可以对控制器方法执行过程中出现的各种异常进行处理。其有四个实现类：
+    1. DefaultHandlerExceptionResolver（默认异常处理器类）
+    2. ResponseStatusExceptionResolver（默认异常处理器类）
+    3. ExceptionHandlerExceptionResolver（默认异常处理器类）
+    4. SimpleMappingExceptionResolver
+    附：如果程序发生异常，Spring MVC 会按照 
+       ExceptionHandlerExceptionResolver → ResponseStatusExceptionResolver → DefaultHandlerExceptionResolver 
+       的顺序，依次使用这三个异常处理器对异常进行解析，直到完成对异常的解析工作为止。
+       
+ResponseStatusExceptionResolver：用于解析 @ResponseStatus 注解标注的自定义异常，并把异常的状态信息返回给客户端展示
+    @ResponseStatus：作用于自定义异常类，包含三个属性：
+    1. code：设置异常的状态码。
+    2. value：设置异常的状态码。value 与 code 完全等价。
+    3. reason：设置异常的原因或描述。
+    
+ExceptionHandlerExceptionResolver：在控制器方法出现异常时，调用相应的 @ExceptionHandler 方法（即使用了 @ExceptionHandler 注解的方法）对异常进行处理。
+    @ExceptionHandler：作用于方法，当控制器方法出现异常时，通过 @ExceptionHandler 注解定义的异常处理方法来处理异常。
+    value属性：声明一个指定的异常，若控制器方法发生这个异常， ExceptionHandlerExceptionResolver 就会调用这个 @ExceptionHandler 方法对异常进行处理。
+    注意：
+    1. 定义在某个控制器类中的 @ExceptionHandler 方法只在当前的控制器中有效，它只能处理其所在控制器类中发生的异常；
+    2. 若使用 @ExceptionHandler 定义多个异常处理方法，则异常处理的优先级为：
+       ExceptionHandlerExceptionResolver 根据继承关系，调用继承深度最浅的异常处理方法对异常进行处理（优先调用子类异常处理方法）。
+全局异常处理：
+    1. 在使用了 @ControllerAdvice 注解的类中定义所有  @ExceptionHandler 方法，这些方法可以作用在应用程序中所有带有  @RequestMapping 注解的控制器方法上，
+    实现全局异常处理。
+    2. SimpleMappingExceptionResolver，spring 提供的自定义异常处理器，装配到配置文件（{dispatcher-name}-servelet.xml）后，亦可实现全局异常处理（配置方式百度可查）。
+    
+# spring MVC 注解+配置类实现
+使用初始化类替代 web.xml
+    Servlet 容器在启动时，会自动查找类项目路径下实现了 javax.servlet.ServletContainerInitializer 接口的初始化类。
+    若找到，则使用该初始化类代替 web.xml，对 Servlet 容器的上下文进行配置。Spring 就为 ServletContainerInitializer 
+    接口提供了一个名为 SpringServletContainerInitializer 的实现类。
