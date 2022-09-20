@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- SpringBoot 父项目依赖管理-->
+    <!--spring-boot-starter-parent：所有 Spring Boot 项目的父级依赖，
+    被称为 Spring Boot 的版本仲裁中心，可以对项目内的部分常用依赖进行统一管理。-->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.7.3</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <groupId>com.glodon.practice</groupId>
+    <artifactId>springboot-demo</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>springboot-demo</name>
+    <description>Demo project for Spring Boot</description>
+    <properties>
+        <java.version>1.8</java.version>
+    </properties>
+
+    <!--导入相关依赖。此处重点讲解 SpringBoot starter(启动器) 机制：
+    整合企业日常研发中各种可能用到的依赖，封装成对应的 starter，此后 starter 便可提供大量默认配置，让开发者摆脱各种依赖导入和配置的困扰。
+    starter 中的各项默认配置并非不可修改和调整，用户可自行对配置进行约定，即遵守 约定大于默认配置 的原则-->
+    <dependencies>
+        <!--使用命令 mvn dependency:tree 查看该 starter 导入的依赖信息，但各依赖均包含版本号（version）
+        问题：谁在管理版本号？版本仲裁中心——spring-boot-starter-parent-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
