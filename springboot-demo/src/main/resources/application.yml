@@ -10,6 +10,3 @@ person:
   dog:
     name: 迪迪
     age: 5
-cat:
-  name: tom
-  age: 18

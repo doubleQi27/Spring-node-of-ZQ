@@ -1,10 +1,12 @@
 package com.glodon.practice.springbootdemo.hello.entity;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 @Component
-@PropertySource(value = "classpath:student.properties")    // 自定义配置文件配置绑定
+@PropertySource(value = "classpath:student.properties")    // 自定义配置文件配置绑定，需要配合 @ConfigurationProperties 一起使用
+@ConfigurationProperties(prefix = "student")
 public class Student {
 
     private String name;
