@@ -4,10 +4,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
+
     <modules>
         <module>micro-service-cloud-api</module>
         <module>micro-service-cloud-eureka</module>
+        <module>micro-service-cloud-provider-dept</module>
+        <module>micro-service-cloud-eureka-7002</module>
+        <module>micro-service-cloud-eureka-7003</module>
+        <module>micro-service-cloud-customer-dept-80</module>
     </modules>
+
     <dependencies>
         <dependency>
             <groupId>org.projectlombok</groupId>
