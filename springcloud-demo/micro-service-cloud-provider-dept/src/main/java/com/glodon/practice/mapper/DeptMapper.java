@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component
-@Mapper
+@Component       //注册到 IoC 容器
+@Mapper       // 标记为 Mapper，接口映射
 public interface DeptMapper {
 
     //根据主键获取数据

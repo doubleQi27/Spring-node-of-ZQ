@@ -44,12 +44,12 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!--Spring Cloud Eureka 客户端依赖-->
+        <!--Spring Cloud Eureka 客户端依赖：服务注册与发现-->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
-        <!--Spring Cloud Ribbon 依赖-->
+        <!--Spring Cloud Ribbon 依赖：服务调用与客户端负载均衡-->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
